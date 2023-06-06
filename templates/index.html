@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center">Chatbot</h1>
+
+      <div id="chat-container" class="border p-3" style="height: 400px; overflow-y: scroll"></div>
+
+      <form id="chat-form" class="d-flex mt-3">
+        <input
+          type="text"
+          id="user-input"
+          class="form-control me-2"
+          placeholder="Type your message here..."
+          autocomplete="off"
+        />
+        <select id="condition-select" class="form-select me-2">
+          <option value="">Select Condition</option>
+          <option value="Condition 1">Heart disease</option>
+          <option value="Condition 2">Diabetes</option>
+          <option value="Condition 3">Asthma</option>
+          <!-- Add more condition options as needed -->
+        </select>
+        <select id="severity-select" class="form-select me-2">
+          <option value="">Select Severity</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <!-- Add more severity options as needed -->
+        </select>
+        <button type="submit" id="send-btn" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(document).ready(() => {
+        $('#chat-form').submit((e) => {
+          e.preventDefault();
+          const userMessage = $('#user-input').val().trim();
+          const condition = $('#condition-select').val();
+          const severity = $('#severity-select').val();
+          let additionalInfo = '';
+
+          if (condition !== '') {
+            additionalInfo += `Condition: ${condition}\n`;
+          }
+
+          if (severity !== '') {
+            additionalInfo += `Severity: ${severity}\n`;
+          }
+
+          const message = `${userMessage}\n${additionalInfo}`;
+
+          if (message !== '') {
+            appendMessage('user', userMessage);
+            $.ajax({
+              url: '/chat',
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({ message: message, condition: condition, severity: severity }),
+              success: (data) => {
+                appendMessage('bot', data.response);
+              },
+              error: (xhr) => {
+                console.log(xhr.responseText);
+              },
+            });
+            $('#user-input').val('');
+            $('#condition-select').val('');
+            $('#severity-select').val('');
+            scrollToBottom();
+          }
+        });
+
+        const appendMessage = (sender, message) => {
+          const chatContainer = $('#chat-container');
+          const senderClass = sender === 'user' ? 'user-message' : 'bot-message';
+          const messageElement = `<div class="message ${senderClass}">${message}</div>`;
+          chatContainer.append(messageElement);
+        };
+
+        const scrollToBottom = () => {
+          const chatContainer = document.getElementById('chat-container');
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        };
+      });
+    </script>
+  </body>
+</html>
