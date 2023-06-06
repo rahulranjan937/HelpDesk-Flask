@@ -42,4 +42,4 @@ def generate_response(message, condition, severity):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5255)
+    app.run()
