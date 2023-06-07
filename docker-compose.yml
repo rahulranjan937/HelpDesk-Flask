@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flask-app
+    container_name: flask-app
+
+    ports:
+      - 8000:5000
+
+    env_file:
+      - .env
+
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
